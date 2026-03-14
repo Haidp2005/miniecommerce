@@ -10,6 +10,8 @@ class ProductProvider extends ChangeNotifier {
   final ApiService _apiService;
 
   final List<Product> _products = [];
+  final List<String> _categories = [];
+  String? _selectedCategory;
   bool _isLoading = false;
   bool _isRefreshing = false;
   bool _isLoadingMore = false;
@@ -18,6 +20,8 @@ class ProductProvider extends ChangeNotifier {
   bool _hasMore = true;
 
   List<Product> get products => List.unmodifiable(_products);
+  List<String> get categories => List.unmodifiable(_categories);
+  String? get selectedCategory => _selectedCategory;
   bool get isLoading => _isLoading;
   bool get isRefreshing => _isRefreshing;
   bool get isLoadingMore => _isLoadingMore;
@@ -28,7 +32,27 @@ class ProductProvider extends ChangeNotifier {
     if (_products.isNotEmpty || _isLoading) {
       return;
     }
-    await fetchProducts(refresh: true);
+    await Future.wait([
+      fetchCategories(),
+      fetchProducts(refresh: true),
+    ]);
+  }
+
+  Future<void> fetchCategories() async {
+    try {
+      final cats = await _apiService.fetchCategories();
+      _categories.clear();
+      _categories.addAll(['All', ...cats]);
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error fetching categories: $e');
+    }
+  }
+
+  void selectCategory(String? category) {
+    if (_selectedCategory == category) return;
+    _selectedCategory = (category == 'All') ? null : category;
+    fetchProducts(refresh: true);
   }
 
   Future<void> fetchProducts({bool refresh = false}) async {
