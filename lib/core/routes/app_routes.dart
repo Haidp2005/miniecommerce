@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../models/product.dart';
 import '../../screens/cart/cart_screen.dart';
-import '../../screens/checkout/checkout_screen.dart';
 import '../../screens/home/home_screen.dart';
-import '../../screens/orders/orders_screen.dart';
+import '../../screens/pay/pay_screen.dart';
 import '../../screens/product_detail/product_detail_screen.dart';
 
 class AppRoutes {
@@ -26,14 +25,15 @@ class AppRoutes {
       case cart:
         return MaterialPageRoute(builder: (_) => const CartScreen());
       case checkout:
-        return MaterialPageRoute(builder: (_) => const CheckoutScreen());
+        return MaterialPageRoute(builder: (_) => const PayScreen());
       case orders:
-        return MaterialPageRoute(builder: (_) => const OrdersScreen());
+        return MaterialPageRoute(
+          builder: (_) => const PayScreen(initialTab: 1),
+        );
       default:
         return MaterialPageRoute(
-          builder: (_) => const Scaffold(
-            body: Center(child: Text('Route not found')),
-          ),
+          builder: (_) =>
+              const Scaffold(body: Center(child: Text('Route not found'))),
         );
     }
   }
