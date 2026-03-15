@@ -56,6 +56,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ProductProvider>();
+    final textScale = MediaQuery.textScalerOf(context).scale(1);
+    final gridChildAspectRatio = textScale > 1.1 ? 0.58 : 0.62;
 
     return Scaffold(
       body: RefreshIndicator(
@@ -155,9 +157,9 @@ class _HomeScreenState extends State<HomeScreen> {
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 sliver: SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: 0.65,
+                    childAspectRatio: gridChildAspectRatio,
                     crossAxisSpacing: 10,
                     mainAxisSpacing: 10,
                   ),
@@ -291,7 +293,7 @@ class _BannerCarouselState extends State<_BannerCarousel> {
           image: NetworkImage(imageUrl),
           fit: BoxFit.cover,
           colorFilter: ColorFilter.mode(
-            color.withOpacity(0.3),
+            color.withValues(alpha: 0.3),
             BlendMode.darken,
           ),
         ),

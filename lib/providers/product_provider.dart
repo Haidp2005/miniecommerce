@@ -7,6 +7,21 @@ import '../services/api_service.dart';
 class ProductProvider extends ChangeNotifier {
   ProductProvider({required ApiService apiService}) : _apiService = apiService;
 
+  static const List<String> _demoCategories = [
+    'Flash Sale',
+    'Best Sellers',
+    'New Arrivals',
+    'Home & Living',
+    'Beauty',
+    'Sports',
+    'Toys',
+    'Books',
+    'Health',
+    'Pet Supplies',
+    'Office',
+    'Accessories',
+  ];
+
   final ApiService _apiService;
 
   final List<Product> _products = [];
@@ -41,8 +56,29 @@ class ProductProvider extends ChangeNotifier {
   Future<void> fetchCategories() async {
     try {
       final cats = await _apiService.fetchCategories();
+      final mergedCategories = <String>[];
+      final seen = <String>{};
+
+      void addCategory(String category) {
+        final normalized = category.trim();
+        if (normalized.isEmpty) {
+          return;
+        }
+        final key = normalized.toLowerCase();
+        if (seen.add(key)) {
+          mergedCategories.add(normalized);
+        }
+      }
+
+      for (final category in cats) {
+        addCategory(category);
+      }
+      for (final category in _demoCategories) {
+        addCategory(category);
+      }
+
       _categories.clear();
-      _categories.addAll(['All', ...cats]);
+      _categories.addAll(['All', ...mergedCategories]);
       notifyListeners();
     } catch (e) {
       debugPrint('Error fetching categories: $e');
