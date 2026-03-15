@@ -110,7 +110,11 @@ class _PayScreenState extends State<PayScreen> {
     final cartProvider = context.watch<CartProvider>();
     final selectedItems = cartProvider.selectedItems;
     final total = cartProvider.selectedTotal;
-    final currency = NumberFormat.currency(symbol: '₫', decimalDigits: 0);
+    final currency = NumberFormat.currency(
+      locale: 'en_US',
+      symbol: '\$',
+      decimalDigits: 2,
+    );
 
     return DefaultTabController(
       length: 2,
@@ -305,7 +309,11 @@ class _OrdersByStatus extends StatelessWidget {
     final theme = Theme.of(context);
     final provider = context.watch<OrderProvider>();
     final orders = provider.byStatus(status);
-    final currency = NumberFormat.currency(symbol: '₫', decimalDigits: 0);
+    final currency = NumberFormat.currency(
+      locale: 'en_US',
+      symbol: '\$',
+      decimalDigits: 2,
+    );
 
     if (orders.isEmpty) {
       return const Center(child: Text('Không có đơn hàng'));

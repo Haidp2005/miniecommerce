@@ -10,9 +10,9 @@ class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
 
   static final NumberFormat _currencyFormatter = NumberFormat.currency(
-    locale: 'vi_VN',
-    symbol: 'VND ',
-    decimalDigits: 0,
+    locale: 'en_US',
+    symbol: '\$',
+    decimalDigits: 2,
   );
 
   @override
@@ -149,9 +149,9 @@ class _CartItemTile extends StatelessWidget {
   final Future<void> Function() onDecrease;
 
   static final NumberFormat _currencyFormatter = NumberFormat.currency(
-    locale: 'vi_VN',
-    symbol: 'VND ',
-    decimalDigits: 0,
+    locale: 'en_US',
+    symbol: '\$',
+    decimalDigits: 2,
   );
 
   @override
