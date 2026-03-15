@@ -15,10 +15,15 @@ class CartProvider extends ChangeNotifier {
   List<CartItem> get items => List.unmodifiable(_items);
   bool get isEmpty => _items.isEmpty;
   int get itemTypeCount => _items.length;
+  int get selectedCount => _items.where((item) => item.isSelected).length;
+  bool get hasSelectedItems => selectedCount > 0;
   bool get isAllSelected => _items.isNotEmpty && _items.every((item) => item.isSelected);
 
   List<CartItem> get selectedItems =>
       _items.where((item) => item.isSelected).toList(growable: false);
+
+  List<CartItem> getSelectedItemsForCheckout() =>
+      List<CartItem>.unmodifiable(selectedItems);
 
   double get selectedTotal =>
       selectedItems.fold(0, (sum, item) => sum + item.subtotal);
@@ -90,11 +95,11 @@ class CartProvider extends ChangeNotifier {
       return;
     }
 
-    if (newQuantity <= 0) {
-      _items.removeAt(index);
-    } else {
-      _items[index] = _items[index].copyWith(quantity: newQuantity);
+    if (newQuantity < 1) {
+      return;
     }
+
+    _items[index] = _items[index].copyWith(quantity: newQuantity);
 
     await _persist();
   }
