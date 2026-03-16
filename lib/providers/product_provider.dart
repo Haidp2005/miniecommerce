@@ -114,13 +114,21 @@ class ProductProvider extends ChangeNotifier {
 
     try {
       final allProducts = await _apiService.fetchProducts();
+      final normalizedSelectedCategory = _selectedCategory?.trim().toLowerCase();
+      final filteredProducts = normalizedSelectedCategory == null
+          ? allProducts
+          : allProducts
+              .where(
+                (product) => product.category.trim().toLowerCase() == normalizedSelectedCategory,
+              )
+              .toList();
       final start = (_page - 1) * AppConstants.pageSize;
 
-      if (start >= allProducts.length) {
+      if (start >= filteredProducts.length) {
         _hasMore = false;
       } else {
-        final end = (start + AppConstants.pageSize).clamp(0, allProducts.length);
-        final pageItems = allProducts.sublist(start, end);
+        final end = (start + AppConstants.pageSize).clamp(0, filteredProducts.length);
+        final pageItems = filteredProducts.sublist(start, end);
 
         if (refresh) {
           _products
@@ -131,7 +139,7 @@ class ProductProvider extends ChangeNotifier {
         }
 
         _page++;
-        _hasMore = end < allProducts.length;
+        _hasMore = end < filteredProducts.length;
       }
     } catch (e) {
       _error = e.toString();
