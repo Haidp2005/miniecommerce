@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
 import '../../models/product.dart';
 
 class ProductCard extends StatelessWidget {
@@ -11,8 +13,33 @@ class ProductCard extends StatelessWidget {
   final Product product;
   final VoidCallback? onTap;
 
+  static final NumberFormat _usdFormatter = NumberFormat.currency(
+    locale: 'en_US',
+    symbol: r'$',
+    decimalDigits: 2,
+  );
+
+  static String _formatSoldCount(int count) {
+    if (count >= 1000) {
+      return '${(count / 1000).toStringAsFixed(1)}k';
+    }
+    return '$count';
+  }
+
+  ({String label, Color color}) _highlightTag(BuildContext context) {
+    if (product.price >= 100) {
+      return (label: 'Giảm 50%', color: Colors.deepOrange);
+    }
+    if (product.rating >= 4.6) {
+      return (label: 'Yêu thích', color: Colors.pinkAccent);
+    }
+    return (label: 'Mall', color: Theme.of(context).primaryColor);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final highlightTag = _highlightTag(context);
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -53,12 +80,12 @@ class ProductCard extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).primaryColor,
+                      color: highlightTag.color,
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: const Text(
-                      'Mall',
-                      style: TextStyle(
+                    child: Text(
+                      highlightTag.label,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
@@ -101,7 +128,7 @@ class ProductCard extends StatelessWidget {
                       children: [
                         Flexible(
                           child: Text(
-                            '\$${product.price.toStringAsFixed(2)}',
+                            _usdFormatter.format(product.price),
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               color: Colors.red,
@@ -112,7 +139,7 @@ class ProductCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Sold ${product.ratingCount > 1000 ? '${(product.ratingCount / 1000).toStringAsFixed(1)}k' : product.ratingCount}',
+                          'Đã bán ${_formatSoldCount(product.ratingCount)}',
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 10,

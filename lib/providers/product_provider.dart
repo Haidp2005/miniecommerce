@@ -7,21 +7,6 @@ import '../services/api_service.dart';
 class ProductProvider extends ChangeNotifier {
   ProductProvider({required ApiService apiService}) : _apiService = apiService;
 
-  static const List<String> _demoCategories = [
-    'Flash Sale',
-    'Best Sellers',
-    'New Arrivals',
-    'Home & Living',
-    'Beauty',
-    'Sports',
-    'Toys',
-    'Books',
-    'Health',
-    'Pet Supplies',
-    'Office',
-    'Accessories',
-  ];
-
   final ApiService _apiService;
 
   final List<Product> _products = [];
@@ -73,9 +58,6 @@ class ProductProvider extends ChangeNotifier {
       for (final category in cats) {
         addCategory(category);
       }
-      for (final category in _demoCategories) {
-        addCategory(category);
-      }
 
       _categories.clear();
       _categories.addAll(['All', ...mergedCategories]);
@@ -113,34 +95,22 @@ class ProductProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final allProducts = await _apiService.fetchProducts();
-      final normalizedSelectedCategory = _selectedCategory?.trim().toLowerCase();
-      final filteredProducts = normalizedSelectedCategory == null
-          ? allProducts
-          : allProducts
-              .where(
-                (product) => product.category.trim().toLowerCase() == normalizedSelectedCategory,
-              )
-              .toList();
-      final start = (_page - 1) * AppConstants.pageSize;
+      final response = await _apiService.fetchProducts(
+        page: _page,
+        limit: AppConstants.pageSize,
+        category: _selectedCategory,
+      );
 
-      if (start >= filteredProducts.length) {
-        _hasMore = false;
+      if (refresh) {
+        _products
+          ..clear()
+          ..addAll(response.products);
       } else {
-        final end = (start + AppConstants.pageSize).clamp(0, filteredProducts.length);
-        final pageItems = filteredProducts.sublist(start, end);
-
-        if (refresh) {
-          _products
-            ..clear()
-            ..addAll(pageItems);
-        } else {
-          _products.addAll(pageItems);
-        }
-
-        _page++;
-        _hasMore = end < filteredProducts.length;
+        _products.addAll(response.products);
       }
+
+      _page++;
+      _hasMore = response.hasMore && response.products.isNotEmpty;
     } catch (e) {
       _error = e.toString();
     } finally {

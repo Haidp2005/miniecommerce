@@ -31,10 +31,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _scrollController.addListener(() {
       // Logic for sticky search bar color change
-      setState(() {
-        _isPinned = _scrollController.hasClients &&
-            _scrollController.offset > (200 - kToolbarHeight);
-      });
+      final pinnedNow = _scrollController.hasClients && _scrollController.offset > 0;
+      if (pinnedNow != _isPinned) {
+        setState(() {
+          _isPinned = pinnedNow;
+        });
+      }
 
       // Infinite scroll logic
       if (_scrollController.position.pixels >=
@@ -70,8 +72,10 @@ class _HomeScreenState extends State<HomeScreen> {
             SliverAppBar(
               pinned: true,
               expandedHeight: 120,
-              backgroundColor: _isPinned ? Theme.of(context).primaryColor : Colors.white,
+              backgroundColor: _isPinned ? Theme.of(context).primaryColor : Colors.transparent,
+              surfaceTintColor: Colors.transparent,
               elevation: _isPinned ? 2 : 0,
+              foregroundColor: _isPinned ? Colors.white : Colors.black87,
               title: Text(
                 AppConstants.appBarTitle,
                 style: TextStyle(
@@ -353,6 +357,7 @@ class _CategoriesSection extends StatelessWidget {
               final cat = categories[index];
               final isSelected = (selectedCategory == null && cat == 'All') ||
                   (selectedCategory == cat);
+              final categoryVisual = _getCategoryVisual(cat);
 
               return GestureDetector(
                 onTap: () => onSelected(cat),
@@ -361,11 +366,12 @@ class _CategoriesSection extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: 28,
-                      backgroundColor:
-                          isSelected ? Theme.of(context).primaryColor : Colors.grey[100],
+                      backgroundColor: isSelected
+                          ? Theme.of(context).primaryColor
+                          : categoryVisual.color.withValues(alpha: 0.14),
                       child: Icon(
-                        _getIconForCategory(cat),
-                        color: isSelected ? Colors.white : Colors.black54,
+                        categoryVisual.icon,
+                        color: isSelected ? Colors.white : categoryVisual.color,
                         size: 28,
                       ),
                     ),
@@ -391,18 +397,80 @@ class _CategoriesSection extends StatelessWidget {
     );
   }
 
-  IconData _getIconForCategory(String category) {
-    switch (category.toLowerCase()) {
-      case 'electronics':
-        return Icons.devices;
-      case 'jewelery':
-        return Icons.watch;
-      case "men's clothing":
-        return Icons.man;
-      case "women's clothing":
-        return Icons.woman;
-      default:
-        return Icons.category;
+  _CategoryVisual _getCategoryVisual(String category) {
+    final normalized = category.toLowerCase();
+
+    if (normalized == 'all') {
+      return const _CategoryVisual(icon: Icons.grid_view_rounded, color: Color(0xFF546E7A));
     }
+    if (normalized.contains('beauty') ||
+        normalized.contains('fragrances') ||
+        normalized.contains('cosmetic')) {
+      return const _CategoryVisual(icon: Icons.spa_rounded, color: Color(0xFF8E24AA));
+    }
+    if (normalized.contains('fashion') ||
+        normalized.contains("women") ||
+        normalized.contains("men") ||
+        normalized.contains('dress') ||
+        normalized.contains('tops') ||
+        normalized.contains('shirt')) {
+      return const _CategoryVisual(icon: Icons.checkroom_rounded, color: Color(0xFFE91E63));
+    }
+    if (normalized.contains('shoe')) {
+      return const _CategoryVisual(icon: Icons.hiking_rounded, color: Color(0xFF5E35B1));
+    }
+    if (normalized.contains('bag')) {
+      return const _CategoryVisual(icon: Icons.work_rounded, color: Color(0xFF6D4C41));
+    }
+    if (normalized.contains('watch') || normalized.contains('jewel')) {
+      return const _CategoryVisual(icon: Icons.watch_rounded, color: Color(0xFFFFB300));
+    }
+    if (normalized.contains('laptop') ||
+        normalized.contains('mobile') ||
+        normalized.contains('smartphone') ||
+        normalized.contains('tablet')) {
+      return const _CategoryVisual(icon: Icons.devices_rounded, color: Color(0xFF1976D2));
+    }
+    if (normalized.contains('electronics')) {
+      return const _CategoryVisual(icon: Icons.memory_rounded, color: Color(0xFF00897B));
+    }
+    if (normalized.contains('furniture') ||
+        normalized.contains('home') ||
+        normalized.contains('decoration')) {
+      return const _CategoryVisual(icon: Icons.chair_alt_rounded, color: Color(0xFF7CB342));
+    }
+    if (normalized.contains('kitchen') || normalized.contains('groceries')) {
+      return const _CategoryVisual(icon: Icons.kitchen_rounded, color: Color(0xFFEF6C00));
+    }
+    if (normalized.contains('sport')) {
+      return const _CategoryVisual(icon: Icons.sports_soccer_rounded, color: Color(0xFF00ACC1));
+    }
+    if (normalized.contains('book')) {
+      return const _CategoryVisual(icon: Icons.menu_book_rounded, color: Color(0xFF3949AB));
+    }
+    if (normalized.contains('toy')) {
+      return const _CategoryVisual(icon: Icons.toys_rounded, color: Color(0xFFF4511E));
+    }
+    if (normalized.contains('health')) {
+      return const _CategoryVisual(icon: Icons.health_and_safety_rounded, color: Color(0xFFD81B60));
+    }
+    if (normalized.contains('pet')) {
+      return const _CategoryVisual(icon: Icons.pets_rounded, color: Color(0xFF8D6E63));
+    }
+    if (normalized.contains('office')) {
+      return const _CategoryVisual(icon: Icons.business_center_rounded, color: Color(0xFF5C6BC0));
+    }
+    if (normalized.contains('accessories')) {
+      return const _CategoryVisual(icon: Icons.diamond_rounded, color: Color(0xFFAB47BC));
+    }
+
+    return const _CategoryVisual(icon: Icons.category_rounded, color: Color(0xFF78909C));
   }
+}
+
+class _CategoryVisual {
+  const _CategoryVisual({required this.icon, required this.color});
+
+  final IconData icon;
+  final Color color;
 }
